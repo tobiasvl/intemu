@@ -33,8 +33,8 @@ uint16_t fetch_uint16(S_CPU *cpu, S_BUS *bus)
 
     uint8_t first_byte = bus->memory[cpu->PC++];
     uint16_t second_byte = bus->memory[cpu->PC++];
-    uint16_t value = first_byte || (second_byte << 8);
-    printf("Fetched values: %02X %02X: %04X\n", first_byte, second_byte, value);
+    int value = (first_byte | (second_byte << 8));
+    printf("Fetched values: %08X %08X: %08X\n", first_byte, second_byte, value);
     return value;
 }
 
@@ -44,19 +44,27 @@ int fetch(S_CPU *cpu, S_BUS *bus)
     while (true)
     {
         // Debug print of state
-        printf("PC before fetch: %04X\n", cpu->PC);
-        uint8_t byte = bus->memory[cpu->PC++];
-        printf("PC after fetch: %04X\n", cpu->PC);
+        printf("PC before fetch: %04X, PC now points at: %02X\n", cpu->PC, bus->memory[cpu->PC]);
+        uint8_t byte = bus->memory[cpu->PC];
+	cpu->PC = cpu->PC + 1;
+        printf("PC after fetch: %04X, PC now points at: %02X\n", cpu->PC, bus->memory[cpu->PC]);
         //decode_opcode(byte);
         switch (byte) {
-            case 0x000:
+            case 0x00:
                 // NOP
-                fprintf(stderr, "NOP\n");
+                //fprintf(stderr, "NOP\n");
                 break;
+	    case 0x21:
+		uint16_t value = fetch_uint16(cpu, bus);
+		printf("LD HL,n16, fetched %02X\n", value);
+		cpu->H = (uint8_t)((value & 0xFF00) >> 8);
+		cpu->L = (uint8_t)(value & 0x00FF);
+		printf("H: %02X, L: %02X\n", cpu->H, cpu->L);
             case 0xC3:
                 cpu->PC = fetch_uint16(cpu, bus);
                 printf("Jumped to %04X\n", cpu->PC);
             default:
+		printf("Unsupported opcode, skip byte\n");
                 // code block
         }
 
