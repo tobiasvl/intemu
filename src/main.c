@@ -46,13 +46,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Print the buffer content in hex
-    printf("Hex dump of the file:\n");
-    for (long i = 0; i < file_size; i++) {
-        printf("%02X ", buffer[i]);  // Print each byte in hex format
-        if ((i + 1) % 16 == 0)       // New line every 16 bytes
-            printf("\n");
-    }
-    printf("\n");
+    //printf("Hex dump of the file:\n");
+    //for (long i = 0; i < file_size; i++) {
+    //    printf("%02X ", buffer[i]);  // Print each byte in hex format
+    //    if ((i + 1) % 16 == 0)       // New line every 16 bytes
+    //        printf("\n");
+    //}
+    //printf("\n");
 
     // Clean up
     free(buffer);

@@ -28,10 +28,14 @@ int fetch_byte(S_CPU *cpu, S_BUS *bus)
     return 0;
 }
 
-int fetch_uint16(S_CPU *cpu, S_BUS *bus)
+uint16_t fetch_uint16(S_CPU *cpu, S_BUS *bus)
 {
 
-    return 0;
+    uint8_t first_byte = bus->memory[cpu->PC++];
+    uint16_t second_byte = bus->memory[cpu->PC++];
+    uint16_t value = first_byte || (second_byte << 8);
+    printf("Fetched values: %02X %02X: %04X\n", first_byte, second_byte, value);
+    return value;
 }
 
 
@@ -39,27 +43,25 @@ int fetch(S_CPU *cpu, S_BUS *bus)
 {
     while (true)
     {
-        uint8_t byte = bus->memory[cpu->PC];
+        // Debug print of state
+        printf("PC before fetch: %04X\n", cpu->PC);
+        uint8_t byte = bus->memory[cpu->PC++];
+        printf("PC after fetch: %04X\n", cpu->PC);
         //decode_opcode(byte);
         switch (byte) {
             case 0x000:
-                //fprintf(stderr, "0x0000 ");
+                // NOP
+                fprintf(stderr, "NOP\n");
                 break;
-            case 0x001:
-                fprintf(stderr, "0x0001 ");
-                // FOO
-                break;
-            case 0x002:
-                fprintf(stderr, "0x0002 ");
-                // BAR
-                break;
+            case 0xC3:
+                cpu->PC = fetch_uint16(cpu, bus);
+                printf("Jumped to %04X\n", cpu->PC);
             default:
                 // code block
         }
 
         //Need an exit path
         // if something then exit
-        cpu->PC += 1;
     }
 
     return 0;
