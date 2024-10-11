@@ -7,21 +7,6 @@
 #include "cpu.h"
 #include "bus.h"
 
-//  DONE - Memset bus memory
-//  DONE - cpu memset 0 
-//  DONE - set pc til 0x100
-//  DONE - lag read from file
-//  DONE - lag fetch byte
-//  lag fetch uint16
-//  lag decoder uint8
-
-int decode_opcode(uint8_t opcode)
-{
-
-    return 0;
-
-}
-
 uint8_t fetch_byte(S_CPU *cpu, S_BUS *bus)
 {
 
@@ -146,8 +131,6 @@ int fetch(S_CPU *cpu, S_BUS *bus)
         //decode_opcode(byte);
         switch (byte) {
             case 0x00:
-                // NOP
-                //fprintf(stderr, "NOP\n");
                 break;
             case 0x04:
 		increment_register(cpu, &cpu->B);
@@ -243,34 +226,42 @@ int fetch(S_CPU *cpu, S_BUS *bus)
 
 	    // RST
             case 0xC7:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x00;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xD7:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x10;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xE7:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x20;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xF7:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x30;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xCF:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x08;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xDF:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x18;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xEF:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x28;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
             case 0xFF:
+		bus->memory[cpu->SP++] = cpu->PC;
                 cpu->PC = 0x38;
                 printf("Reset to %04X\n", cpu->PC);
 		break;
