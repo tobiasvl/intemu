@@ -241,6 +241,40 @@ int fetch(S_CPU *cpu, S_BUS *bus)
                 printf("Jumped to %04X\n", cpu->PC);
 		break;
 
+	    // RST
+            case 0xC7:
+                cpu->PC = 0x00;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xD7:
+                cpu->PC = 0x10;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xE7:
+                cpu->PC = 0x20;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xF7:
+                cpu->PC = 0x30;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xCF:
+                cpu->PC = 0x08;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xDF:
+                cpu->PC = 0x18;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xEF:
+                cpu->PC = 0x28;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+            case 0xFF:
+                cpu->PC = 0x38;
+                printf("Reset to %04X\n", cpu->PC);
+		break;
+
             // LD
             case 0x40:
                 ld_8bit(cpu, &cpu->B, &cpu->B);
@@ -572,6 +606,65 @@ int fetch(S_CPU *cpu, S_BUS *bus)
                 cp_8bit(cpu, &cpu->A, &cpu->A);
                 break;
 
+	    // Subroutines
+	    case 0x31:
+		cpu->SP = fetch_uint16(cpu, bus);
+		cpu->SP++;
+		break;
+	    case 0xC0:
+		if (!cpu->flag_Z) {
+		    cpu->PC = --(cpu->SP);
+		}
+		break;
+	    case 0xD0:
+		if (!cpu->flag_C) {
+		    cpu->PC = --(cpu->SP);
+		}
+		break;
+	    case 0xC8:
+		if (cpu->flag_Z) {
+		    cpu->PC = --(cpu->SP);
+		}
+		break;
+	    case 0xD8:
+		if (cpu->flag_C) {
+		    cpu->PC = --(cpu->SP);
+		}
+		break;
+	    case 0xC9:
+		cpu->PC = --(cpu->SP);
+		break;
+	    case 0xCD:
+		bus->memory[cpu->SP++] = cpu->PC;
+		cpu->PC = fetch_uint16(cpu, bus);
+		break;
+	    case 0xC4:
+		if (!cpu->flag_Z) {
+		    bus->memory[cpu->SP++] = cpu->PC;
+		    cpu->PC = fetch_uint16(cpu, bus);
+		}
+		break;
+	    case 0xD4:
+		if (!cpu->flag_C) {
+		    bus->memory[cpu->SP++] = cpu->PC;
+		    cpu->PC = fetch_uint16(cpu, bus);
+		}
+		break;
+	    case 0xCC:
+		if (cpu->flag_Z) {
+		    bus->memory[cpu->SP++] = cpu->PC;
+		    cpu->PC = fetch_uint16(cpu, bus);
+		}
+		break;
+	    case 0xDC:
+		if (cpu->flag_C) {
+		    bus->memory[cpu->SP++] = cpu->PC;
+		    cpu->PC = fetch_uint16(cpu, bus);
+		}
+		break;
+	    case 0xFB:
+		printf("EI\n");
+		break;
 
             default:
 		printf("Unsupported opcode, skip byte\n");
