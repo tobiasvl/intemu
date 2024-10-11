@@ -50,6 +50,89 @@ void decrement_register(S_CPU *cpu, uint8_t *reg) {
     cpu->flag_N = 0;
 }
 
+void ld_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    *target_reg = *source_reg;
+}
+
+void add_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    if ((*target_reg) + (*source_reg) > 0xFF) {
+	cpu->flag_C = 1;
+    } else {
+	cpu->flag_C = 0;
+    }
+    *target_reg += *source_reg;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+}
+
+void adc_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    uint8_t flag_C = cpu->flag_C;
+    if ((*target_reg) + (*source_reg) + flag_C > 0xFF) {
+	cpu->flag_C = 1;
+    } else {
+	cpu->flag_C = 0;
+    }
+    *target_reg += *source_reg + flag_C;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+}
+
+void and_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    *target_reg &= *source_reg;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+    cpu->flag_H = 1;
+    cpu->flag_C = 0;
+}
+
+void xor_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    *target_reg ^= *source_reg;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+    cpu->flag_H = 0;
+    cpu->flag_C = 0;
+}
+
+void or_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    *target_reg |= *source_reg;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+    cpu->flag_H = 0;
+    cpu->flag_C = 0;
+}
+
+void cp_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    if ((*source_reg) > (*target_reg)) {
+	cpu->flag_C = 1;
+    } else {
+	cpu->flag_C = 0;
+    }
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+}
+
+void sub_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    if ((*source_reg) > (*target_reg)) {
+	cpu->flag_C = 1;
+    } else {
+	cpu->flag_C = 0;
+    }
+    *target_reg -= *source_reg;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+}
+
+void sbc_8bit(S_CPU *cpu, uint8_t *target_reg, uint8_t *source_reg) {
+    uint8_t flag_C = cpu->flag_C;
+    if ((*source_reg) + flag_C > (*target_reg)) {
+	cpu->flag_C = 1;
+    } else {
+	cpu->flag_C = 0;
+    }
+    *target_reg -= *source_reg - flag_C;
+    cpu->flag_Z = (*target_reg == 0);
+    cpu->flag_N = 0;
+}
 
 int fetch(S_CPU *cpu, S_BUS *bus)
 {
@@ -153,13 +236,343 @@ int fetch(S_CPU *cpu, S_BUS *bus)
             case 0x3D:
 		decrement_register(cpu, &cpu->A);
                 break;
-	    case 0x47:
-		cpu->B = cpu->A;
-		break;
             case 0xC3:
                 cpu->PC = fetch_uint16(cpu, bus);
                 printf("Jumped to %04X\n", cpu->PC);
 		break;
+
+            // LD
+            case 0x40:
+                ld_8bit(cpu, &cpu->B, &cpu->B);
+                break;
+            case 0x41:
+                ld_8bit(cpu, &cpu->B, &cpu->C);
+                break;
+            case 0x42:
+                ld_8bit(cpu, &cpu->B, &cpu->D);
+                break;
+            case 0x43:
+                ld_8bit(cpu, &cpu->B, &cpu->E);
+                break;
+            case 0x44:
+                ld_8bit(cpu, &cpu->B, &cpu->H);
+                break;
+            case 0x45:
+                ld_8bit(cpu, &cpu->B, &cpu->L);
+                break;
+            case 0x47:
+                ld_8bit(cpu, &cpu->B, &cpu->A);
+                break;
+            case 0x48:
+                ld_8bit(cpu, &cpu->C, &cpu->B);
+                break;
+            case 0x49:
+                ld_8bit(cpu, &cpu->C, &cpu->C);
+                break;
+            case 0x4A:
+                ld_8bit(cpu, &cpu->C, &cpu->D);
+                break;
+            case 0x4B:
+                ld_8bit(cpu, &cpu->C, &cpu->E);
+                break;
+            case 0x4C:
+                ld_8bit(cpu, &cpu->C, &cpu->H);
+                break;
+            case 0x4D:
+                ld_8bit(cpu, &cpu->C, &cpu->L);
+                break;
+            case 0x4F:
+                ld_8bit(cpu, &cpu->C, &cpu->A);
+                break;
+
+            case 0x50:
+                ld_8bit(cpu, &cpu->D, &cpu->B);
+                break;
+            case 0x51:
+                ld_8bit(cpu, &cpu->D, &cpu->C);
+                break;
+            case 0x52:
+                ld_8bit(cpu, &cpu->D, &cpu->D);
+                break;
+            case 0x53:
+                ld_8bit(cpu, &cpu->D, &cpu->E);
+                break;
+            case 0x54:
+                ld_8bit(cpu, &cpu->D, &cpu->H);
+                break;
+            case 0x55:
+                ld_8bit(cpu, &cpu->D, &cpu->L);
+                break;
+            case 0x57:
+                ld_8bit(cpu, &cpu->D, &cpu->A);
+                break;
+            case 0x58:
+                ld_8bit(cpu, &cpu->E, &cpu->B);
+                break;
+            case 0x59:
+                ld_8bit(cpu, &cpu->E, &cpu->C);
+                break;
+            case 0x5A:
+                ld_8bit(cpu, &cpu->E, &cpu->D);
+                break;
+            case 0x5B:
+                ld_8bit(cpu, &cpu->E, &cpu->E);
+                break;
+            case 0x5C:
+                ld_8bit(cpu, &cpu->E, &cpu->H);
+                break;
+            case 0x5D:
+                ld_8bit(cpu, &cpu->E, &cpu->L);
+                break;
+            case 0x5F:
+                ld_8bit(cpu, &cpu->E, &cpu->A);
+                break;
+
+            case 0x60:
+                ld_8bit(cpu, &cpu->H, &cpu->B);
+                break;
+            case 0x61:
+                ld_8bit(cpu, &cpu->H, &cpu->C);
+                break;
+            case 0x62:
+                ld_8bit(cpu, &cpu->H, &cpu->D);
+                break;
+            case 0x63:
+                ld_8bit(cpu, &cpu->H, &cpu->E);
+                break;
+            case 0x64:
+                ld_8bit(cpu, &cpu->H, &cpu->H);
+                break;
+            case 0x65:
+                ld_8bit(cpu, &cpu->H, &cpu->L);
+                break;
+            case 0x67:
+                ld_8bit(cpu, &cpu->H, &cpu->A);
+                break;
+            case 0x68:
+                ld_8bit(cpu, &cpu->L, &cpu->B);
+                break;
+            case 0x69:
+                ld_8bit(cpu, &cpu->L, &cpu->C);
+                break;
+            case 0x6A:
+                ld_8bit(cpu, &cpu->L, &cpu->D);
+                break;
+            case 0x6B:
+                ld_8bit(cpu, &cpu->L, &cpu->E);
+                break;
+            case 0x6C:
+                ld_8bit(cpu, &cpu->L, &cpu->H);
+                break;
+            case 0x6D:
+                ld_8bit(cpu, &cpu->L, &cpu->L);
+                break;
+            case 0x6F:
+                ld_8bit(cpu, &cpu->L, &cpu->A);
+                break;
+
+            case 0x78:
+                ld_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0x79:
+                ld_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0x7A:
+                ld_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0x7B:
+                ld_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0x7C:
+                ld_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0x7D:
+                ld_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0x7F:
+                ld_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+            // ADD
+            case 0x80:
+                add_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0x81:
+                add_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0x82:
+                add_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0x83:
+                add_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0x84:
+                add_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0x85:
+                add_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0x87:
+                add_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+            case 0x88:
+                adc_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0x89:
+                adc_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0x8A:
+                adc_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0x8B:
+                adc_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0x8C:
+                adc_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0x8D:
+                adc_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0x8F:
+                adc_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+	    // SUB
+            case 0x90:
+                sub_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0x91:
+                sub_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0x92:
+                sub_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0x93:
+                sub_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0x94:
+                sub_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0x95:
+                sub_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0x97:
+                sub_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+            case 0x98:
+                sbc_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0x99:
+                sbc_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0x9A:
+                sbc_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0x9B:
+                sbc_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0x9C:
+                sbc_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0x9D:
+                sbc_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0x9F:
+                sbc_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+	    // AND
+            case 0xA0:
+                and_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0xA1:
+                and_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0xA2:
+                and_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0xA3:
+                and_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0xA4:
+                and_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0xA5:
+                and_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0xA7:
+                and_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+            case 0xA8:
+                xor_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0xA9:
+                xor_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0xAA:
+                xor_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0xAB:
+                xor_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0xAC:
+                xor_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0xAD:
+                xor_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0xAF:
+                xor_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+            case 0xB0:
+                or_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0xB1:
+                or_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0xB2:
+                or_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0xB3:
+                or_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0xB4:
+                or_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0xB5:
+                or_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0xB7:
+                or_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+            case 0xB8:
+                cp_8bit(cpu, &cpu->A, &cpu->B);
+                break;
+            case 0xB9:
+                cp_8bit(cpu, &cpu->A, &cpu->C);
+                break;
+            case 0xBA:
+                cp_8bit(cpu, &cpu->A, &cpu->D);
+                break;
+            case 0xBB:
+                cp_8bit(cpu, &cpu->A, &cpu->E);
+                break;
+            case 0xBC:
+                cp_8bit(cpu, &cpu->A, &cpu->H);
+                break;
+            case 0xBD:
+                cp_8bit(cpu, &cpu->A, &cpu->L);
+                break;
+            case 0xBF:
+                cp_8bit(cpu, &cpu->A, &cpu->A);
+                break;
+
+
             default:
 		printf("Unsupported opcode, skip byte\n");
                 // code block
