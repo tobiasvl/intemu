@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 2.8.12)
+project(intemu)
+file(GLOB_RECURSE src_files ${CMAKE_CURRENT_LIST_DIR}/src/*.[ch])
+add_executable(${PROJECT_NAME}  ${src_files})
+target_link_libraries(${PROJECT_NAME} m)
